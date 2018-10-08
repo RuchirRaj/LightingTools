@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using LightUtilities;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Experimental.Rendering.HDPipeline;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -8,7 +9,6 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class Sunlight : MonoBehaviour
 {
-    //public SunlightAnimationParameters animationParameters = new SunlightAnimationParameters();
     public SunlightParameters sunlightParameters;
     [SerializeField][HideInInspector]
     private GameObject sunlight;
@@ -18,11 +18,22 @@ public class Sunlight : MonoBehaviour
     private GameObject sunlightYAxis;
     [SerializeField][HideInInspector]
     private GameObject sunlightTimeofdayDummy;
-    public bool drawGizmo = false;
-    public float gizmoSize = 1;
+    public bool drawGizmo = true;
+    public float gizmoSize = 5;
     public bool showEntities = true;
     private float initialTimeOfDay;
-    private float updatedTimeOfDay;
+
+    public bool useManager = false;
+
+    [SerializeField]
+    [HideInInspector]
+    private Light directionalLight;
+    [SerializeField]
+    [HideInInspector]
+    private HDAdditionalLightData additionalLightData;
+    [SerializeField]
+    [HideInInspector]
+    private AdditionalShadowData shadowData;
 
     private void OnEnable()
     {
@@ -43,36 +54,12 @@ public class Sunlight : MonoBehaviour
     void Start ()
     {
         initialTimeOfDay = sunlightParameters.orientationParameters.timeOfDay;
-        updatedTimeOfDay = initialTimeOfDay;
-
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if(Application.isPlaying)
-        {
-            switch (sunlightParameters.animationParameters.animationMode)
-            {
-                case SunlightAnimationMode.Custom:
-                    {
-                        SetSunlightTransform();
-                        SetLightSettings();
-                        break;
-                    }
-                case SunlightAnimationMode.DayCycle:
-                    {
-                        updatedTimeOfDay = (updatedTimeOfDay + Time.deltaTime * sunlightParameters.animationParameters.dayLength * 24 / 60) % 24;
-                        sunlightParameters.orientationParameters.timeOfDay = updatedTimeOfDay;
-                        SetSunlightTransform();
-                        SetLightSettings();
-                        break;
-                    }
-
-
-            }
-        }
-        if(Application.isEditor && !Application.isPlaying)
+        if(Application.isEditor && !Application.isPlaying && !useManager)
         {
             SetSunlightTransform();
             if (sunlight != null && sunlightParameters != null)
@@ -81,23 +68,45 @@ public class Sunlight : MonoBehaviour
             }
             ApplyShowFlags(showEntities);
         }
+        if(useManager)
+        {
+            var stack = VolumeManager.instance.stack;
+            var sunProps = stack.GetComponent<SunlightProperties>();
+            sunlightParameters.orientationParameters.lattitude = sunProps.lattitude.value;
+            sunlightParameters.orientationParameters.yAxis = sunProps.YAxis.value;
+            sunlightParameters.orientationParameters.timeOfDay = sunProps.timeOfDay.value;
+            sunlightParameters.lightParameters.intensity = sunProps.intensity;
+            sunlightParameters.lightParameters.indirectIntensity = sunProps.indirectMultiplier;
+            sunlightParameters.lightParameters.colorFilter = sunProps.color;
+            sunlightParameters.lightParameters.lightCookie = sunProps.cookieTexture;
+            sunlightParameters.lightParameters.cookieSize = sunProps.cookieSize;
+            sunlightParameters.lightParameters.shadowResolution = sunProps.shadowResolution;
+            SetSunlightTransform();
+            SetLightSettings();
+            ApplyShowFlags(showEntities);
+        }
             
+    }
+
+    public void SetLightSettings()
+    {
+        LightingUtilities.ApplyLightParameters(directionalLight, sunlightParameters.lightParameters);
     }
 
 #if UNITY_EDITOR
 
     private void OnDrawGizmos()
     {
-        if(drawGizmo && sunlight != null && sunlightParameters.animationParameters.colorGradient != null)
+        if(drawGizmo && sunlight != null)
         {
             Gizmos.color = Handles.color = new Color(1,1,1,0.3f);
-            Handles.DrawWireDisc(gameObject.transform.position, gameObject.transform.up, gizmoSize);
+            Handles.DrawWireDisc(sunlightYAxis.transform.position, sunlightYAxis.transform.up, gizmoSize);
             Handles.DrawWireArc(gameObject.transform.position, sunlightLattitude.transform.right, sunlightLattitude.transform.forward, 180, gizmoSize);
-            var gizmoColor = sunlightParameters.animationParameters.colorGradient.Evaluate(sunlightParameters.orientationParameters.timeOfDay / 24);
+            var gizmoColor = sunlightParameters.lightParameters.colorFilter;
             Gizmos.color = Handles.color = gizmoColor;
-            LightingGizmos.DrawDirectionalLightGizmo(sunlight.transform);
+            //LightingGizmos.DrawDirectionalLightGizmo(sunlight.transform);
             Gizmos.DrawLine(sunlightTimeofdayDummy.transform.position + sunlight.transform.forward * -gizmoSize, gameObject.transform.position);
-            Gizmos.DrawWireSphere(sunlightTimeofdayDummy.transform.position + sunlight.transform.forward * -gizmoSize, gizmoSize/10);
+            Handles.DrawWireDisc(sunlight.transform.position, Camera.current.transform.forward, gizmoSize / 10);
         }
     }
 #endif
@@ -131,12 +140,29 @@ public class Sunlight : MonoBehaviour
 
     void CreateSunlight()
     {
+
         if (sunlight == null)
+        {
             sunlight = new GameObject("DirectionalLight");
+            //Init defaults
+            sunlightParameters = new SunlightParameters();
+            sunlightParameters.lightParameters.type = LightType.Directional;
+        }
+
         sunlight.transform.parent = sunlightTimeofdayDummy.transform;
         sunlight.transform.localPosition = -Vector3.forward * gizmoSize;
-        var directionalLight = sunlight.GetComponent<Light>() == null ? sunlight.AddComponent<Light>() : sunlight.GetComponent<Light>();
+        directionalLight = sunlight.GetComponent<Light>() == null ? sunlight.AddComponent<Light>() : sunlight.GetComponent<Light>();
         directionalLight.type = LightType.Directional;
+        if(!sunlight.GetComponent<HDAdditionalLightData>())
+        {
+            additionalLightData = sunlight.AddComponent<HDAdditionalLightData>();
+            HDAdditionalLightData.InitDefaultHDAdditionalLightData(additionalLightData);
+        }
+        else
+        {
+            additionalLightData = sunlight.GetComponent<HDAdditionalLightData>();
+        }
+        shadowData = sunlight.GetComponent<AdditionalShadowData>() == null ? sunlight.AddComponent<AdditionalShadowData>() : sunlight.GetComponent<AdditionalShadowData>();
     }
 
 
@@ -150,47 +176,11 @@ public class Sunlight : MonoBehaviour
     {
         if (sunlightYAxis != null && sunlightLattitude != null && sunlight != null && sunlightParameters != null && sunlightYAxis.transform.parent == gameObject.transform)
         {
-            sunlightYAxis.transform.localRotation = Quaternion.Euler(new Vector3(0, sunlightParameters.orientationParameters.yAxis, 0));
+            sunlightYAxis.transform.rotation = Quaternion.Euler(new Vector3(0, sunlightParameters.orientationParameters.yAxis, 0));
             sunlightLattitude.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 180 - sunlightParameters.orientationParameters.lattitude));
             sunlightTimeofdayDummy.transform.localRotation = Quaternion.Euler(new Vector3(timeOfDay * 15f + 90, 0, 0));
             sunlight.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, sunlightParameters.orientationParameters.Roll));
         }
-    }
-
-    public void SetLightSettings()
-    {
-        var directionalLight = sunlight.GetComponent<Light>();
-        var shadowData = directionalLight.GetComponent<AdditionalShadowData>();
-
-#if UNITY_EDITOR
-        switch (sunlightParameters.lightParameters.mode)
-        {
-            case LightmapPresetBakeType.Realtime: directionalLight.lightmapBakeType = LightmapBakeType.Realtime; break;
-            case LightmapPresetBakeType.Baked: directionalLight.lightmapBakeType = LightmapBakeType.Baked; break;
-            case LightmapPresetBakeType.Mixed: directionalLight.lightmapBakeType = LightmapBakeType.Mixed; break;
-        }
-#endif
-
-        directionalLight.shadows = sunlightParameters.lightParameters.shadows;
-        directionalLight.intensity = sunlightParameters.lightParameters.intensity;
-        directionalLight.bounceIntensity = sunlightParameters.lightParameters.indirectIntensity;
-        if (sunlightParameters.animationParameters.colorGradient != null && sunlightParameters.animationParameters.animationMode == SunlightAnimationMode.DayCycle)
-        {
-            directionalLight.color = sunlightParameters.animationParameters.colorGradient.Evaluate(sunlightParameters.orientationParameters.timeOfDay / 24);
-        }
-        else
-            directionalLight.color = sunlightParameters.lightParameters.colorFilter;
-        directionalLight.shadowBias = sunlightParameters.lightParameters.shadowBias;
-        switch (sunlightParameters.lightParameters.shadowQuality)
-        {
-            case LightingTools.ShadowQuality.VeryHigh: shadowData.shadowResolution = 2048; break;
-            case LightingTools.ShadowQuality.High: shadowData.shadowResolution = 1024; break;
-            case LightingTools.ShadowQuality.Medium: shadowData.shadowResolution = 512; break;
-            case LightingTools.ShadowQuality.Low: shadowData.shadowResolution = 256; break;
-        }
-        directionalLight.cookie = sunlightParameters.lightParameters.lightCookie;
-        directionalLight.shadowStrength = sunlightParameters.lightParameters.shadowStrength;
-        QualitySettings.shadowDistance = sunlightParameters.lightParameters.shadowMaxDistance;
     }
 
     private void OnDestroy()

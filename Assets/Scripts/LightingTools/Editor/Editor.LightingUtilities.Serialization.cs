@@ -1,18 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Experimental.Rendering.HDPipeline;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using Object = UnityEngine.Object;
 
-namespace LightUtilities
+namespace EditorLightUtilities
 {
-#if UNITY_EDITOR
-    public static class EditorLightingUtilities
+    public static class SerializationLightUtilities
     {
         public static void AssignSerializedProperty(SerializedProperty sp, object source)
         {
@@ -55,5 +47,4 @@ namespace LightUtilities
             }
         }
     }
-#endif
 }

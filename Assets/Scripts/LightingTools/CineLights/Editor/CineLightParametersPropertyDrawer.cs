@@ -1,5 +1,6 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
+using EditorLightUtilities;
 using LightUtilities;
 
 [CustomPropertyDrawer(typeof(CineLightParameters))]
@@ -13,7 +14,6 @@ public class CineLightParametersPropertyDrawer : PropertyDrawer
         EditorGUILayout.PropertyField(property.FindPropertyRelative("drawGizmo"));
         LightUIUtilities.DrawSplitter();
 
-        #region Rig
         EditorGUI.indentLevel--;
         LightUIUtilities.DrawHeader("Rig");
         EditorGUI.indentLevel++;
@@ -27,7 +27,6 @@ public class CineLightParametersPropertyDrawer : PropertyDrawer
         }
         EditorGUILayout.PropertyField(property.FindPropertyRelative("distance"));
         EditorGUILayout.PropertyField(property.FindPropertyRelative("offset"));
-        #endregion
 
         EditorGUI.EndProperty();
     }

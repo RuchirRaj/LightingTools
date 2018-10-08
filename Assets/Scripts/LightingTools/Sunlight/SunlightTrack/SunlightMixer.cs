@@ -11,7 +11,6 @@ public class SunlightMixer : PlayableBehaviour {
         var count = handle.GetInputCount();
         for (var i = 0; i < count; i++)
         {
-
             var inputHandle = handle.GetInput(i);
             var weight = handle.GetInputWeight(i);
 
@@ -27,8 +26,6 @@ public class SunlightMixer : PlayableBehaviour {
                     data.sunlight.SetLightSettings();
                 }
             }
-
         }
-
     }
 }

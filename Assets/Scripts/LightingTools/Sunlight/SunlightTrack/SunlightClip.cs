@@ -22,8 +22,6 @@ public class SunlightClipPlayable : PlayableBehaviour
     {
         sunlight.sunlightParameters = sunlightParameters;
     }
-
-
 }
 
 [Serializable]

@@ -1,9 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine;
 using UnityEditor;
-using Object = UnityEngine.Object;
 
-namespace LightUtilities
+namespace EditorLightUtilities
 {
     public static class LightUIUtilities
     {
@@ -41,7 +39,6 @@ namespace LightUtilities
                 activeField = !activeField;
                 e.Use();
             }
-
             EditorGUILayout.Space();
 
             return activeField;
@@ -123,7 +120,6 @@ namespace LightUtilities
                 state = !state;
                 e.Use();
             }
-
             return state;
         }
     }

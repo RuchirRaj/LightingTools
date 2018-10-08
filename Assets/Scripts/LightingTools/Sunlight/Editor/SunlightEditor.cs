@@ -1,10 +1,7 @@
-﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System;
-using Object = UnityEngine.Object;
-using LightingTools;
+using EditorLightUtilities;
 
 [CustomEditor(typeof(Sunlight))]
 public class SunlightEditor : Editor
@@ -24,6 +21,7 @@ public class SunlightEditor : Editor
 
     public Sunlight sunlight;
     SerializedProperty animationParameters;
+    SerializedProperty useManager;
     SerializedProperty sunlightParameters;
     SerializedProperty drawGizmo;
     SerializedProperty gizmoSize;
@@ -32,6 +30,7 @@ public class SunlightEditor : Editor
     void OnEnable()
     {
         sunlight = (Sunlight)serializedObject.targetObject;
+        useManager = serializedObject.FindProperty("useManager");
         sunlightParameters = serializedObject.FindProperty("sunlightParameters");
         drawGizmo = serializedObject.FindProperty("drawGizmo");
         gizmoSize = serializedObject.FindProperty("gizmoSize");
@@ -40,15 +39,19 @@ public class SunlightEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
+
+        EditorGUILayout.PropertyField(useManager);
         EditorGUILayout.PropertyField(sunlightParameters, true);
 
+        EditorGUI.BeginDisabledGroup(useManager.boolValue);
         EditorGUI.indentLevel = 0;
-        EditorLightingUtilities.DrawSplitter();
-        EditorLightingUtilities.DrawHeader("Visualization");
+        LightUIUtilities.DrawSplitter();
+        LightUIUtilities.DrawHeader("Visualization");
         EditorGUI.indentLevel = 1;
 
         EditorGUILayout.PropertyField(drawGizmo);
         EditorGUILayout.PropertyField(gizmoSize);
+        EditorGUI.EndDisabledGroup();
 
         serializedObject.ApplyModifiedProperties();
     }

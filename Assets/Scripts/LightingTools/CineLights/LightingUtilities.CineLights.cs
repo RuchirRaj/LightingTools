@@ -1,17 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using Object = UnityEngine.Object;
 
 namespace LightUtilities
 {
     [System.Serializable]
     public class CineLightParameters
     {
+        public CineLightParameters() { }
+
+        public CineLightParameters(bool neutral)
+        {
+            Yaw = 0;
+            Pitch = 0;
+            Roll = 0;
+            offset = Vector3.zero;
+            distance = 0;
+        }
+
+        public static CineLightParameters DeepCopy(CineLightParameters c)
+        {
+            CineLightParameters temp = new CineLightParameters();
+            temp.Yaw = c.Yaw;
+            temp.Pitch = c.Pitch;
+            temp.Roll = c.Roll;
+            temp.offset = c.offset;
+            temp.distance = c.distance;
+            temp.linkToCameraRotation = c.linkToCameraRotation;
+            temp.displayName = c.displayName;
+            temp.drawGizmo = c.drawGizmo;
+            return temp;
+        }
+
         public string displayName = "displayName";
         public bool linkToCameraRotation = false;
         [Range(-180f, 180f)]
@@ -28,6 +46,26 @@ namespace LightUtilities
     [System.Serializable]
     public class ShadowCasterParameters
     {
+        public ShadowCasterParameters() { }
+
+        public ShadowCasterParameters(bool neutral)
+        {
+            useShadowCaster = false;
+            shadowCasterSize = Vector2.zero;
+            shadowCasterDistance = 0;
+            shadowCasterOffset = Vector2.zero;
+        }
+
+        public static ShadowCasterParameters DeepCopy(ShadowCasterParameters c)
+        {
+            ShadowCasterParameters temp = new ShadowCasterParameters();
+            temp.useShadowCaster = c.useShadowCaster;
+            temp.shadowCasterSize = c.shadowCasterSize;
+            temp.shadowCasterDistance = c.shadowCasterDistance;
+            temp.shadowCasterOffset = c.shadowCasterOffset;
+            return temp;
+        }
+
         public bool useShadowCaster = false;
         public Vector2 shadowCasterSize = new Vector2(1, 1);
         public float shadowCasterDistance = 1;
@@ -46,9 +84,10 @@ namespace LightUtilities
             light.Pitch = parameters.Pitch;
             light.LightParentPitch.transform.localRotation = Quaternion.Euler(-parameters.Pitch, 0, 0);
             light.Roll = parameters.Roll;
-            light.light.transform.localRotation = Quaternion.Euler(0, 180, parameters.Roll + 180);
+            light.lightGO.transform.localRotation = Quaternion.Euler(0, 180, parameters.Roll + 180);
             light.distance = parameters.distance;
-            light.light.transform.localPosition = new Vector3(0, 0, parameters.distance);
+            light.lightGO.transform.localPosition = new Vector3(0, 0, parameters.distance);
+            light.timelineSelected = parameters.drawGizmo;
         }
 
         public static CineLightParameters LerpLightTargetParameters(CineLightParameters from, CineLightParameters to, float weight)

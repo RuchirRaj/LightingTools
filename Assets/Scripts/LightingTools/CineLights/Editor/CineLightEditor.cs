@@ -1,10 +1,7 @@
-﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System;
-using Object = UnityEngine.Object;
-using LightUtilities;
+using EditorLightUtilities;
 using UnityEngine.Experimental.Rendering.HDPipeline;
 using UnityEngine.Experimental.Rendering;
 
@@ -44,7 +41,7 @@ public class CineLightEditor : Editor
     public SerializedProperty useColorTemperature;
     public SerializedProperty shadowsType;
     public SerializedProperty shadowsQuality;
-    public SerializedProperty shadowsBias;
+    //public SerializedProperty shadowsBias;
     public SerializedProperty shadowsNormalBias;
     public SerializedProperty shadowsNearPlane;
     public SerializedProperty lightmapping;
@@ -60,11 +57,17 @@ public class CineLightEditor : Editor
 	public SerializedProperty affectDiffuse;
 	public SerializedProperty affectSpecular;
 	public SerializedProperty fadeDistance;
-    public SerializedProperty applyRangeAttenuation;
 
-    //AdditionalShadowSettings
-    public SerializedProperty shadowResolution;
+    public HDAdditionalLightData additionalLightData;
+
+	//AdditionalShadowSettings
+	public SerializedProperty shadowResolution;
 	public SerializedProperty shadowFadeDistance;
+    public SerializedProperty shadowDimmer;
+    public SerializedProperty viewBiasMin;
+    public SerializedProperty viewBiasScale;
+    public SerializedProperty normalBiasMin;
+    public SerializedProperty normalBiasMax;
 
     public SerializedProperty yaw;
     public SerializedProperty pitch;
@@ -106,13 +109,12 @@ public class CineLightEditor : Editor
         cookie = m_SerializedLight.FindProperty("m_Cookie");
         cookieSize = m_SerializedLight.FindProperty("m_CookieSize");
         color = m_SerializedLight.FindProperty("m_Color");
-        intensity = m_SerializedLight.FindProperty("m_Intensity");
+        //intensity = m_SerializedLight.FindProperty("m_Intensity");
         bounceIntensity = m_SerializedLight.FindProperty("m_BounceIntensity");
         colorTemperature = m_SerializedLight.FindProperty("m_ColorTemperature");
         useColorTemperature = m_SerializedLight.FindProperty("m_UseColorTemperature");
         shadowsType = m_SerializedLight.FindProperty("m_Shadows.m_Type");
         shadowsQuality = m_SerializedLight.FindProperty("m_Shadows.m_Resolution");
-        shadowsBias = m_SerializedLight.FindProperty("m_Shadows.m_Bias");
         shadowsNormalBias = m_SerializedLight.FindProperty("m_Shadows.m_NormalBias");
         shadowsNearPlane = m_SerializedLight.FindProperty("m_Shadows.m_NearPlane");
         lightmapping = m_SerializedLight.FindProperty("m_Lightmapping");
@@ -143,12 +145,20 @@ public class CineLightEditor : Editor
 		affectDiffuse = m_SerializedAdditionalLightData.FindProperty("affectDiffuse");
 		affectSpecular = m_SerializedAdditionalLightData.FindProperty("affectSpecular");
 		fadeDistance = m_SerializedAdditionalLightData.FindProperty("fadeDistance");
-        applyRangeAttenuation = m_SerializedAdditionalLightData.FindProperty("applyRangeAttenuation");
+        intensity = m_SerializedAdditionalLightData.FindProperty("intensity");
+        normalBiasMax = m_SerializedAdditionalShadowData.FindProperty("normalBiasMax");
 
         shadowResolution = m_SerializedAdditionalShadowData.FindProperty ("shadowResolution");
-		shadowFadeDistance = m_SerializedAdditionalShadowData.FindProperty ("shadowFadeDistance");
+        shadowFadeDistance = m_SerializedAdditionalShadowData.FindProperty("shadowFadeDistance");
+        viewBiasMin = m_SerializedAdditionalShadowData.FindProperty ("viewBiasMin");
+        viewBiasScale = m_SerializedAdditionalShadowData.FindProperty("viewBiasScale");
+        normalBiasMin = m_SerializedAdditionalShadowData.FindProperty("normalBiasMin");
+        normalBiasMax = m_SerializedAdditionalShadowData.FindProperty("normalBiasMax");
+        shadowDimmer = m_SerializedAdditionalShadowData.FindProperty("shadowDimmer");
 
         InitShadowCasterSerializedObject();
+
+        additionalLightData = (HDAdditionalLightData)m_SerializedAdditionalLightData.targetObject;
     }
 
     void InitShadowCasterSerializedObject()
@@ -222,10 +232,17 @@ public class CineLightEditor : Editor
 
         if(color.isExpanded)
         {
-            EditorGUILayout.PropertyField(color);
-            EditorGUILayout.PropertyField(useColorTemperature);
-            EditorGUILayout.PropertyField(colorTemperature);
+			EditorGUILayout.PropertyField(useColorTemperature);
+            if(useColorTemperature.boolValue)
+                EditorGUILayout.PropertyField(colorTemperature);
+			EditorGUILayout.PropertyField(color);
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(intensity);
+            //if (EditorGUI.EndChangeCheck())
+            //{
+            //    m_SerializedAdditionalLightData.ApplyModifiedProperties();
+            //    additionalLightData.ConvertPhysicalLightIntensityToLightIntensity();
+            //}
             EditorGUILayout.PropertyField(bounceIntensity);
             EditorGUILayout.PropertyField(range);
             EditorGUILayout.PropertyField(lightmapping);
@@ -257,9 +274,11 @@ public class CineLightEditor : Editor
             {
                 //EditorGUILayout.PropertyField(shadowsQuality);
 				EditorGUILayout.PropertyField (shadowResolution);
-                EditorGUILayout.PropertyField(shadowsBias);
-                EditorGUILayout.PropertyField(shadowsNormalBias);
-                EditorGUILayout.PropertyField(shadowsNearPlane);
+				EditorGUILayout.PropertyField(shadowsNearPlane);
+                EditorGUILayout.PropertyField(viewBiasMin);
+                EditorGUILayout.PropertyField(viewBiasScale);
+                EditorGUILayout.PropertyField(normalBiasMin);
+                normalBiasMax = normalBiasMin;
                 //EditorGUILayout.PropertyField(bakedShadowRadius);
                 //EditorGUILayout.PropertyField(bakedShadowAngle);
             }
@@ -285,9 +304,9 @@ public class CineLightEditor : Editor
 
 			EditorGUILayout.PropertyField(affectDiffuse);
 			EditorGUILayout.PropertyField(affectSpecular);
+            EditorGUILayout.PropertyField(shadowDimmer);
 			EditorGUILayout.PropertyField(fadeDistance);
 			EditorGUILayout.PropertyField(shadowFadeDistance);
-            EditorGUILayout.PropertyField(applyRangeAttenuation);
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(useShadowCaster);

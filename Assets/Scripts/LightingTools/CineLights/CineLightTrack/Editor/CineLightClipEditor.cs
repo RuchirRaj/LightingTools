@@ -1,9 +1,9 @@
-using LightUtilities;
+using EditorLightUtilities;
 using UnityEditor;
 using UnityEngine;
 
 //Disabled : doesn't work well with animation so far
-/*
+
 [CustomEditor(typeof(CineLightClip))]
 public class CineLightClipEditor : Editor
 {
@@ -84,9 +84,9 @@ public class CineLightClipEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.PropertyField(displayName);
 
-        EditorLightingUtilities.DrawSplitter();
+        LightUIUtilities.DrawSplitter();
         //EditorGUI.indentLevel--;
-        yaw.isExpanded = EditorLightingUtilities.DrawHeaderFoldout("Rig", yaw.isExpanded);
+        yaw.isExpanded = LightUIUtilities.DrawHeaderFoldout("Rig", yaw.isExpanded);
         EditorGUI.indentLevel++;
 
         if (yaw.isExpanded)
@@ -99,9 +99,9 @@ public class CineLightClipEditor : Editor
         }
 
 
-        EditorLightingUtilities.DrawSplitter();
+        LightUIUtilities.DrawSplitter();
         EditorGUI.indentLevel--;
-        EditorLightingUtilities.DrawHeader("Light");
+        LightUIUtilities.DrawHeader("Light");
         EditorGUI.indentLevel++;
 
         EditorGUILayout.PropertyField(intensity);
@@ -115,16 +115,16 @@ public class CineLightClipEditor : Editor
             EditorGUILayout.PropertyField(cookieSize);
         }
 
-        EditorLightingUtilities.DrawSplitter();
+        LightUIUtilities.DrawSplitter();
         EditorGUI.indentLevel--;
-        EditorLightingUtilities.DrawHeader("Spot");
+        LightUIUtilities.DrawHeader("Spot");
         EditorGUI.indentLevel++;
 
         EditorGUILayout.PropertyField(spotAngle);
 
-        EditorLightingUtilities.DrawSplitter();
+        LightUIUtilities.DrawSplitter();
         EditorGUI.indentLevel--;
-        EditorLightingUtilities.DrawHeader("Shadows");
+        LightUIUtilities.DrawHeader("Shadows");
         EditorGUI.indentLevel++;
 
         EditorGUILayout.PropertyField(shadowsType);
@@ -135,9 +135,9 @@ public class CineLightClipEditor : Editor
             EditorGUILayout.PropertyField(shadowsNormalBias);
         }
 
-        EditorLightingUtilities.DrawSplitter();
+        LightUIUtilities.DrawSplitter();
         EditorGUI.indentLevel--;
-        drawGizmo.isExpanded = EditorLightingUtilities.DrawHeaderFoldout("Additional Settings", drawGizmo.isExpanded);
+        drawGizmo.isExpanded = LightUIUtilities.DrawHeaderFoldout("Additional Settings", drawGizmo.isExpanded);
         EditorGUI.indentLevel++;
 
         if (drawGizmo.isExpanded)
@@ -160,4 +160,4 @@ public class CineLightClipEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
-*/
+

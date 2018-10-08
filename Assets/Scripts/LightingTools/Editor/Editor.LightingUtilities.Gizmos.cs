@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
-namespace LightUtilities
+namespace EditorLightUtilities
 {
     public static class LightingGizmos
     {
