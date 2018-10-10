@@ -9,18 +9,18 @@ public class SunlightClipPlayable : PlayableBehaviour
 {
     public SunlightParameters sunlightParameters;
     [HideInInspector]
-    public Sunlight sunlight;
+    //public Sunlight sunlight;
 
     public override void OnGraphStart(Playable playable)
     {
-        sunlight = GameObject.FindObjectOfType<Sunlight>();
-        if (sunlight == null) Debug.Log("No sunlight found");
+        //sunlight = GameObject.FindObjectOfType<Sunlight>();
+        //if (sunlight == null) Debug.Log("No sunlight found");
         base.OnGraphStart(playable);
     }
 
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
-        sunlight.sunlightParameters = sunlightParameters;
+        //sunlight.sunlightParameters = sunlightParameters;
     }
 }
 
