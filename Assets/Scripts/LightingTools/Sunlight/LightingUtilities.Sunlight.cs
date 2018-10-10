@@ -18,7 +18,7 @@ namespace LightUtilities
         public float yAxis = 0f;
         [Range(0f, 24f)]
         public float timeOfDay = 10f;
-        [Range(0f, 90f)]
+        [Range(-90f, 90f)]
         public float lattitude = 35f;
         [Range(-180f, 180f)]
         public float Roll = 0.1f;
@@ -27,26 +27,11 @@ namespace LightUtilities
         [System.Serializable]
     public class SunlightParameters
     {
-        public SunlightAnimationParameters animationParameters = new SunlightAnimationParameters();
         public SunlightOrientationParameters orientationParameters = new SunlightOrientationParameters();
+        public AnimationCurve intensityCurve;
+        public Gradient colorGradient;
         public LightParameters lightParameters = new LightParameters();
         public ProceduralSkyboxParameters proceduralSkyParameters = new ProceduralSkyboxParameters();
-    }
-
-    [System.Serializable]
-    public enum SunlightAnimationMode
-    {
-        Custom = 0,
-        DayCycle = 1
-    }
-
-    [System.Serializable]
-    public class SunlightAnimationParameters
-    {
-        public bool animate;
-        public SunlightAnimationMode animationMode;
-        public float dayLength = 1;
-        public Gradient colorGradient;
     }
 
     [System.Serializable]

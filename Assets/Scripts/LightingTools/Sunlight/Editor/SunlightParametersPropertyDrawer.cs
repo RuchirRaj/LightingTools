@@ -10,11 +10,10 @@ public class SunlightParametersPropertyDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        EditorGUI.indentLevel = 0;
         LightUIUtilities.DrawSplitter();
 
         property.FindPropertyRelative("orientationParameters.yAxis").isExpanded = LightUIUtilities.DrawHeaderFoldout("Orientation", property.FindPropertyRelative("orientationParameters.yAxis").isExpanded);
-        EditorGUI.indentLevel = 1;
+        EditorGUI.indentLevel++;
 
         if (property.FindPropertyRelative("orientationParameters.yAxis").isExpanded)
         {
@@ -27,16 +26,16 @@ public class SunlightParametersPropertyDrawer : PropertyDrawer
             }
         }
 
-        EditorGUI.indentLevel = 0;
+        EditorGUI.indentLevel--;
         LightUIUtilities.DrawSplitter();
         property.FindPropertyRelative("lightParameters.intensity").isExpanded = LightUIUtilities.DrawHeaderFoldout("Light", property.FindPropertyRelative("lightParameters.intensity").isExpanded);
-        EditorGUI.indentLevel = 1;
+        EditorGUI.indentLevel++;
 
         if (property.FindPropertyRelative("lightParameters.intensity").isExpanded)
         {
-            EditorGUILayout.PropertyField(property.FindPropertyRelative("lightParameters.colorFilter"));
+            EditorGUILayout.PropertyField(property.FindPropertyRelative("intensityCurve"));
+            EditorGUILayout.PropertyField(property.FindPropertyRelative("colorGradient"));
 
-            EditorGUILayout.PropertyField(property.FindPropertyRelative("lightParameters.intensity"));
             //EditorGUILayout.PropertyField(property.FindPropertyRelative("lightParameters.useColorTemperature"));  
             //if (property.FindPropertyRelative("lightParameters.useColorTemperature").boolValue == true)
             //{
@@ -52,10 +51,10 @@ public class SunlightParametersPropertyDrawer : PropertyDrawer
         }
 
 
-        EditorGUI.indentLevel = 0;
+        EditorGUI.indentLevel--;
         LightUIUtilities.DrawSplitter();
         property.FindPropertyRelative("lightParameters.shadows").boolValue = LightUIUtilities.DrawHeader("Shadows", property.FindPropertyRelative("lightParameters.shadows").boolValue);
-        EditorGUI.indentLevel = 1;
+        EditorGUI.indentLevel++;
 
         if (property.FindPropertyRelative("lightParameters.shadows").boolValue)
         {
@@ -64,7 +63,7 @@ public class SunlightParametersPropertyDrawer : PropertyDrawer
             EditorGUILayout.PropertyField(property.FindPropertyRelative("lightParameters.normalBias"));
             EditorGUILayout.PropertyField(property.FindPropertyRelative("lightParameters.contactShadows"));
         }
-
+        EditorGUI.indentLevel--;
         EditorGUI.EndProperty();
     }
 }

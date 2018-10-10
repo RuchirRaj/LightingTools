@@ -20,8 +20,8 @@ public class SunlightEditor : Editor
     }
 
     public Sunlight sunlight;
-    SerializedProperty animationParameters;
-    SerializedProperty useManager;
+    SerializedProperty intensityCurve;
+    SerializedProperty gradient;
     SerializedProperty sunlightParameters;
     SerializedProperty drawGizmo;
     SerializedProperty gizmoSize;
@@ -30,8 +30,9 @@ public class SunlightEditor : Editor
     void OnEnable()
     {
         sunlight = (Sunlight)serializedObject.targetObject;
-        useManager = serializedObject.FindProperty("useManager");
         sunlightParameters = serializedObject.FindProperty("sunlightParameters");
+        intensityCurve = serializedObject.FindProperty("sunlightParameters.intensityCurve");
+        gradient = serializedObject.FindProperty("sunlightParameters.colorGradient");
         drawGizmo = serializedObject.FindProperty("drawGizmo");
         gizmoSize = serializedObject.FindProperty("gizmoSize");
     }
@@ -40,18 +41,17 @@ public class SunlightEditor : Editor
     {
         serializedObject.Update();
 
-        EditorGUILayout.PropertyField(useManager);
+        GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        EditorGUILayout.LabelField("Default Values", EditorStyles.boldLabel);
+
         EditorGUILayout.PropertyField(sunlightParameters, true);
 
-        EditorGUI.BeginDisabledGroup(useManager.boolValue);
-        EditorGUI.indentLevel = 0;
         LightUIUtilities.DrawSplitter();
         LightUIUtilities.DrawHeader("Visualization");
         EditorGUI.indentLevel = 1;
 
         EditorGUILayout.PropertyField(drawGizmo);
         EditorGUILayout.PropertyField(gizmoSize);
-        EditorGUI.EndDisabledGroup();
 
         serializedObject.ApplyModifiedProperties();
     }

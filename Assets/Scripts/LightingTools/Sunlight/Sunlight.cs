@@ -23,8 +23,6 @@ public class Sunlight : MonoBehaviour
     public bool showEntities = true;
     private float initialTimeOfDay;
 
-    public bool useManager = false;
-
     [SerializeField]
     [HideInInspector]
     private Light directionalLight;
@@ -35,6 +33,8 @@ public class Sunlight : MonoBehaviour
     [HideInInspector]
     private AdditionalShadowData shadowData;
 
+    private VolumeStack stack;
+
     private void OnEnable()
     {
         CreateLightYAxis();
@@ -43,6 +43,8 @@ public class Sunlight : MonoBehaviour
         CreateSunlight();
         //Enable if it has been disabled
         if (sunlight != null) { sunlight.GetComponent<Light>().enabled = true; }
+
+        stack = VolumeManager.instance.stack;
     }
 
     private void OnDisable()
@@ -59,33 +61,43 @@ public class Sunlight : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        if(Application.isEditor && !Application.isPlaying && !useManager)
-        {
-            SetSunlightTransform();
-            if (sunlight != null && sunlightParameters != null)
-            {
-                SetLightSettings();
-            }
-            ApplyShowFlags(showEntities);
-        }
-        if(useManager)
-        {
-            var stack = VolumeManager.instance.stack;
-            var sunProps = stack.GetComponent<SunlightProperties>();
+        GatherOverrides();
+
+        SetSunlightTransform();
+        SetLightSettings();
+        ApplyShowFlags(showEntities);
+    }
+
+    private void GatherOverrides()
+    {
+        var sunProps = stack.GetComponent<SunlightProperties>();
+
+        if (sunProps.lattitude.overrideState)
             sunlightParameters.orientationParameters.lattitude = sunProps.lattitude.value;
+        if (sunProps.YAxis.overrideState)
             sunlightParameters.orientationParameters.yAxis = sunProps.YAxis.value;
+        if (sunProps.timeOfDay.overrideState)
             sunlightParameters.orientationParameters.timeOfDay = sunProps.timeOfDay.value;
+
+        //If overridden intensity is constant, otherwise drive by curve
+        if (sunProps.intensity.overrideState)
             sunlightParameters.lightParameters.intensity = sunProps.intensity;
-            sunlightParameters.lightParameters.indirectIntensity = sunProps.indirectMultiplier;
+        else
+            sunlightParameters.lightParameters.intensity = sunlightParameters.intensityCurve.Evaluate(sunlightParameters.orientationParameters.timeOfDay);
+        //If overridden intensity is constant, otherwise driven by gradient
+        if (sunProps.color.overrideState)
             sunlightParameters.lightParameters.colorFilter = sunProps.color;
+        else
+            sunlightParameters.lightParameters.colorFilter = sunlightParameters.colorGradient.Evaluate(sunlightParameters.orientationParameters.timeOfDay/24);
+
+        if (sunProps.indirectMultiplier.overrideState)
+            sunlightParameters.lightParameters.indirectIntensity = sunProps.indirectMultiplier;
+        if (sunProps.cookieTexture.overrideState)
             sunlightParameters.lightParameters.lightCookie = sunProps.cookieTexture;
+        if (sunProps.cookieSize.overrideState)
             sunlightParameters.lightParameters.cookieSize = sunProps.cookieSize;
+        if (sunProps.shadowResolution.overrideState)
             sunlightParameters.lightParameters.shadowResolution = sunProps.shadowResolution;
-            SetSunlightTransform();
-            SetLightSettings();
-            ApplyShowFlags(showEntities);
-        }
-            
     }
 
     public void SetLightSettings()
@@ -93,23 +105,6 @@ public class Sunlight : MonoBehaviour
         LightingUtilities.ApplyLightParameters(directionalLight, sunlightParameters.lightParameters);
     }
 
-#if UNITY_EDITOR
-
-    private void OnDrawGizmos()
-    {
-        if(drawGizmo && sunlight != null)
-        {
-            Gizmos.color = Handles.color = new Color(1,1,1,0.3f);
-            Handles.DrawWireDisc(sunlightYAxis.transform.position, sunlightYAxis.transform.up, gizmoSize);
-            Handles.DrawWireArc(gameObject.transform.position, sunlightLattitude.transform.right, sunlightLattitude.transform.forward, 180, gizmoSize);
-            var gizmoColor = sunlightParameters.lightParameters.colorFilter;
-            Gizmos.color = Handles.color = gizmoColor;
-            //LightingGizmos.DrawDirectionalLightGizmo(sunlight.transform);
-            Gizmos.DrawLine(sunlightTimeofdayDummy.transform.position + sunlight.transform.forward * -gizmoSize, gameObject.transform.position);
-            Handles.DrawWireDisc(sunlight.transform.position, Camera.current.transform.forward, gizmoSize / 10);
-        }
-    }
-#endif
 
     void CreateLightYAxis()
     {
@@ -151,21 +146,13 @@ public class Sunlight : MonoBehaviour
 
         sunlight.transform.parent = sunlightTimeofdayDummy.transform;
         sunlight.transform.localPosition = -Vector3.forward * gizmoSize;
-        directionalLight = sunlight.GetComponent<Light>() == null ? sunlight.AddComponent<Light>() : sunlight.GetComponent<Light>();
+
+        directionalLight = sunlight.GetComponent<Light>() ?? sunlight.AddComponent<Light>();
+        additionalLightData = sunlight.GetComponent<HDAdditionalLightData>() ?? sunlight.AddComponent<HDAdditionalLightData>();
+        shadowData = sunlight.GetComponent<AdditionalShadowData>() ?? sunlight.AddComponent<AdditionalShadowData>();
+
         directionalLight.type = LightType.Directional;
-        if(!sunlight.GetComponent<HDAdditionalLightData>())
-        {
-            additionalLightData = sunlight.AddComponent<HDAdditionalLightData>();
-            HDAdditionalLightData.InitDefaultHDAdditionalLightData(additionalLightData);
-        }
-        else
-        {
-            additionalLightData = sunlight.GetComponent<HDAdditionalLightData>();
-        }
-        shadowData = sunlight.GetComponent<AdditionalShadowData>() == null ? sunlight.AddComponent<AdditionalShadowData>() : sunlight.GetComponent<AdditionalShadowData>();
     }
-
-
 
     public void SetSunlightTransform()
     {
@@ -188,6 +175,7 @@ public class Sunlight : MonoBehaviour
         DestroyImmediate(sunlight);
         DestroyImmediate(sunlightYAxis);
         DestroyImmediate(sunlightLattitude);
+        DestroyImmediate(sunlightTimeofdayDummy);
     }
 
     void ApplyShowFlags(bool show)
@@ -218,4 +206,21 @@ public class Sunlight : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
+
+    private void OnDrawGizmos()
+    {
+        if(drawGizmo && sunlight != null)
+        {
+            Gizmos.color = Handles.color = new Color(1,1,1,0.3f);
+            Handles.DrawWireDisc(sunlightYAxis.transform.position, sunlightYAxis.transform.up, gizmoSize);
+            Handles.DrawWireArc(gameObject.transform.position, sunlightLattitude.transform.right, sunlightLattitude.transform.forward, 180, gizmoSize);
+            var gizmoColor = sunlightParameters.lightParameters.colorFilter;
+            Gizmos.color = Handles.color = gizmoColor;
+            //LightingGizmos.DrawDirectionalLightGizmo(sunlight.transform);
+            Gizmos.DrawLine(sunlightTimeofdayDummy.transform.position + sunlight.transform.forward * -gizmoSize, gameObject.transform.position);
+            Handles.DrawWireDisc(sunlight.transform.position, Camera.current.transform.forward, gizmoSize / 10);
+        }
+    }
+#endif
 }

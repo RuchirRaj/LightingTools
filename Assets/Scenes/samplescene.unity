@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.31719434, g: 0.45950434, b: 0.7670131, a: 1}
+  m_IndirectSpecularColor: {r: 0.32276112, g: 0.46826696, b: 0.77513945, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -494,7 +494,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 178754717}
-  m_LocalRotation: {x: 0.8660254, y: 0, z: 0, w: -0.50000006}
+  m_LocalRotation: {x: 0.77714604, y: 0, z: 0, w: -0.6293203}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -733,52 +733,99 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sunlightParameters:
-    animationParameters:
-      animate: 0
-      animationMode: 0
-      dayLength: 1
-      colorGradient:
-        serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 1}
-        key2: {r: 0, g: 0, b: 0, a: 0}
-        key3: {r: 0, g: 0, b: 0, a: 0}
-        key4: {r: 0, g: 0, b: 0, a: 0}
-        key5: {r: 0, g: 0, b: 0, a: 0}
-        key6: {r: 0, g: 0, b: 0, a: 0}
-        key7: {r: 0, g: 0, b: 0, a: 0}
-        ctime0: 0
-        ctime1: 65535
-        ctime2: 0
-        ctime3: 0
-        ctime4: 0
-        ctime5: 0
-        ctime6: 0
-        ctime7: 0
-        atime0: 0
-        atime1: 65535
-        atime2: 0
-        atime3: 0
-        atime4: 0
-        atime5: 0
-        atime6: 0
-        atime7: 0
-        m_Mode: 0
-        m_NumColorKeys: 2
-        m_NumAlphaKeys: 2
     orientationParameters:
       yAxis: 0
-      timeOfDay: 10
-      lattitude: 0
+      timeOfDay: 11.2
+      lattitude: 42.2
       Roll: 0.1
+    intensityCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 5
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 13
+        value: 1200
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 22
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 24
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 0.2352941, g: 0, b: 0, a: 1}
+      key1: {r: 1, g: 0.52843565, b: 0.52843565, a: 1}
+      key2: {r: 1, g: 0.8403257, b: 0.6692461, a: 0}
+      key3: {r: 1, g: 0.9440294, b: 0.83823526, a: 0}
+      key4: {r: 1, g: 0.8403257, b: 0.6692461, a: 0}
+      key5: {r: 1, g: 0.52843565, b: 0.52843565, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 13493
+      ctime1: 14649
+      ctime2: 18504
+      ctime3: 30840
+      ctime4: 46838
+      ctime5: 49922
+      ctime6: 51657
+      ctime7: 65535
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 8
+      m_NumAlphaKeys: 2
     lightParameters:
       type: 1
       mode: 1
       range: 8
       useColorTemperature: 0
       colorTemperature: 6500
-      colorFilter: {r: 1, g: 1, b: 1, a: 1}
-      intensity: 3
+      colorFilter: {r: 1, g: 0.9418689, b: 0.83471465, a: 1}
+      intensity: 1045.0875
       indirectIntensity: 1
       lightAngle: 45
       shadows: 1
@@ -817,7 +864,6 @@ MonoBehaviour:
   drawGizmo: 1
   gizmoSize: 5
   showEntities: 1
-  useManager: 0
   directionalLight: {fileID: 1363250715}
   additionalLightData: {fileID: 1363250714}
   shadowData: {fileID: 1363250713}
@@ -859,7 +905,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 751722613}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: -0.00000004371139}
+  m_LocalRotation: {x: 0, y: 0, z: 0.93295354, w: 0.35999686}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1662,7 +1708,7 @@ MonoBehaviour:
   useOldInspector: 0
   featuresFoldout: 1
   showAdditionalSettings: 0
-  displayLightIntensity: 3
+  displayLightIntensity: 1045.0875
   displayAreaLightEmissiveMesh: 0
   lightLayers: 1
 --- !u!108 &1363250715
@@ -1675,8 +1721,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Color: {r: 1, g: 0.9418689, b: 0.83471465, a: 1}
+  m_Intensity: 1045.0875
   m_Range: 8
   m_SpotAngle: 45
   m_CookieSize: 10
