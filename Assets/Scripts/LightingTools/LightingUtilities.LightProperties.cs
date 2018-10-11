@@ -120,6 +120,39 @@ namespace LightUtilities
             return temp;
         }
 
+        public static LightParameters operator +(LightParameters x, LightParameters y)
+        {
+            var addition = new LightParameters
+            {
+                intensity = x.intensity + y.intensity,
+                range = x.range + y.range,
+                colorFilter = x.colorFilter + y.colorFilter,
+                colorTemperature = x.colorTemperature + y.colorTemperature,
+                indirectIntensity = x.indirectIntensity + y.indirectIntensity,
+                lightAngle = x.lightAngle + y.lightAngle,
+                innerSpotPercent = x.innerSpotPercent + y.innerSpotPercent,
+                maxSmoothness = x.maxSmoothness + y.maxSmoothness,
+                shadowStrength = x.shadowStrength + y.shadowStrength,
+                shadowResolution = x.shadowResolution + y.shadowResolution,
+                useColorTemperature = x.useColorTemperature || y.useColorTemperature ? true : false,
+                shadows = x.shadows || y.shadows ? true : false,
+                affectDiffuse = x.affectDiffuse || y.affectDiffuse ? true : false,
+                affectSpecular = x.affectSpecular || y.affectSpecular ? true : false,
+                contactShadows = x.contactShadows || y.contactShadows ? true : false,
+                ShadowNearClip = x.ShadowNearClip + y.ShadowNearClip,
+                viewBiasMin = x.viewBiasMin + y.viewBiasMin,
+                viewBiasScale = x.viewBiasScale + y.viewBiasScale,
+                normalBias = x.normalBias + y.normalBias,
+                cookieSize = x.cookieSize + y.cookieSize,
+                length = x.length + y.length,
+                width = x.width + y.width,
+                fadeDistance = x.fadeDistance + y.fadeDistance,
+                shadowFadeDistance = x.shadowFadeDistance + y.shadowFadeDistance,
+                shadowMaxDistance = x.shadowMaxDistance + y.shadowMaxDistance
+            };
+            return addition;
+        }
+
         public LightType type = LightType.Point;
         public LightmapPresetBakeType mode = LightmapPresetBakeType.Mixed;
         public float range = 8;

@@ -1,6 +1,7 @@
 using UnityEngine.Playables;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using LightUtilities;
 
 public class SunlightMixer : PlayableBehaviour
 {
@@ -10,6 +11,9 @@ public class SunlightMixer : PlayableBehaviour
         Volume volume = playerData as Volume;
         VolumeProfile volumeProfile = Application.isPlaying ? volume.profile : volume.sharedProfile;
         SunlightProperties sunprops = ScriptableObject.CreateInstance<SunlightProperties>();
+
+        SunlightParameters neutralSunlightParameters = new SunlightParameters(true);
+        SunlightParameters mixedSunlightParameters = new SunlightParameters(true);
 
         if(volumeProfile.TryGet<SunlightProperties>(out sunprops))
         {
@@ -26,18 +30,20 @@ public class SunlightMixer : PlayableBehaviour
                     var data = ((ScriptPlayable<SunlightClipPlayable>)inputHandle).GetBehaviour();
                     if (data != null)
                     {
-                        //var lerpedSunlightParameters = SunlightLightingUtilities.LerpSunlightParameters(data.sunlightParameters, data.sunlightParameters, weight);
+                        var weightedSunlightParameters = SunlightLightingUtilities.LerpSunlightParameters(neutralSunlightParameters, data.sunlightParameters, weight);
 
-                        sunprops.YAxis.value = data.sunlightParameters.orientationParameters.yAxis;
-                        sunprops.lattitude.value = data.sunlightParameters.orientationParameters.lattitude;
-                        sunprops.timeOfDay.value = data.sunlightParameters.orientationParameters.timeOfDay;
-                        sunprops.intensity.value = data.sunlightParameters.lightParameters.intensity;
-                        sunprops.color.value = data.sunlightParameters.lightParameters.colorFilter;
-                        sunprops.cookieTexture.value = data.sunlightParameters.lightParameters.lightCookie;
-                        sunprops.cookieSize.value = data.sunlightParameters.lightParameters.cookieSize;
+                        mixedSunlightParameters += weightedSunlightParameters;
                     }
                 }
             }
+
+            sunprops.YAxis.value = mixedSunlightParameters.orientationParameters.yAxis;
+            sunprops.lattitude.value = mixedSunlightParameters.orientationParameters.lattitude;
+            sunprops.timeOfDay.value = mixedSunlightParameters.orientationParameters.timeOfDay;
+            sunprops.intensity.value = mixedSunlightParameters.lightParameters.intensity;
+            sunprops.color.value = mixedSunlightParameters.lightParameters.colorFilter;
+            sunprops.cookieTexture.value = mixedSunlightParameters.lightParameters.lightCookie;
+            sunprops.cookieSize.value = mixedSunlightParameters.lightParameters.cookieSize;
         }
     }
 }

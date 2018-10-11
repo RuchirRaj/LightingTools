@@ -166,7 +166,7 @@ public class Sunlight : MonoBehaviour
             sunlightYAxis.transform.rotation = Quaternion.Euler(new Vector3(0, sunlightParameters.orientationParameters.yAxis, 0));
             sunlightLattitude.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 180 - sunlightParameters.orientationParameters.lattitude));
             sunlightTimeofdayDummy.transform.localRotation = Quaternion.Euler(new Vector3(timeOfDay * 15f + 90, 0, 0));
-            sunlight.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, sunlightParameters.orientationParameters.Roll));
+            sunlight.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, sunlightParameters.orientationParameters.roll));
         }
     }
 
